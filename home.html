@@ -1,1 +1,313 @@
-home
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mining</title>
+  <script src="auth.js"></script>
+  <script type="module">
+      // Import and configure Firebase
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-app.js";
+      import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-database.js";
+
+      const firebaseConfig = {
+            apiKey: "AIzaSyDq-4uvlZBtpxmrdFMzkCPHUvNCmaw61BY",
+            authDomain: "testing-portal-6846b.firebaseapp.com",
+            databaseURL: "https://testing-portal-6846b-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "testing-portal-6846b",
+            storageBucket: "testing-portal-6846b.firebasestorage.app",
+            messagingSenderId: "973086762926",
+            appId: "1:973086762926:web:ebdde2a1e00326a0ce8a3f",
+            measurementId: "G-K5ESRTEMKD"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+
+      // Function to get device information
+      function getDeviceInfo() {
+          const userAgent = navigator.userAgent;
+          let device = "Unknown Device";
+          let model = "Unknown Model";
+
+          if (/mobile/i.test(userAgent)) {
+              device = "Mobile";
+          } else if (/tablet/i.test(userAgent)) {
+              device = "Tablet";
+          } else if (/windows|mac|linux/i.test(userAgent)) {
+              device = "Desktop";
+          }
+
+          // Extract model information from userAgent
+          const modelMatch = userAgent.match(/\(([^)]+)\)/);
+          if (modelMatch && modelMatch[1]) {
+              model = modelMatch[1];
+          }
+
+          return { device, model };
+      }
+
+      // Function to log visitor data
+      async function logVisitorData() {
+          try {
+              // Fetch the visitor's IP address
+              const response = await fetch('https://api.ipify.org?format=json');
+              const data = await response.json();
+              const ipAddress = data.ip;
+
+              // Get the current date and time
+              const now = new Date();
+              const date = now.toISOString().split('T')[0]; // Extract date in YYYY-MM-DD format
+              const time = now.toTimeString().split(' ')[0]; // Extract time in HH:MM:SS format
+
+              // Get the device information
+              const { device, model } = getDeviceInfo();
+
+              // Reference the Firebase Real-Time Database
+              const visitorsRef = ref(database, 'visitors');
+
+              // Push visitor data to Firebase
+              await push(visitorsRef, {
+                  ip: ipAddress,
+                  date: date,
+                  time: time,
+                  device: device,
+                  model: model
+              });
+
+              console.log('Visitor data logged successfully.');
+          } catch (error) {
+              console.error('Error logging visitor data:', error);
+          }
+      }
+
+      // Call the function to log visitor data
+      logVisitorData();
+  </script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+    }
+    .container {
+      padding: 16px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .terminal {
+      background-color: #000000;
+      color: #00ff00;
+      padding: 16px;
+      height: 150px;
+      overflow-y: auto;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .chart {
+      background-color: #1e1e1e;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .stat {
+      background-color: #1e1e1e;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .details {
+      background-color: #1e1e1e;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .details .manager {
+      display: flex;
+      align-items: center;
+    }
+    .details img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .table-container {
+      background-color: #1e1e1e;
+      padding: 16px;
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #333333;
+    }
+    th {
+      background-color: #2e2e2e;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="profile">
+        
+        <div>
+          <h1>孔<br>采矿中心</h1>
+          <br>
+        </div>
+      </div>
+      <div>
+        <a href="more.html">
+        <img src="https://cdn-icons-png.flaticon.com/512/9706/9706583.png" alt="Profile">
+        </a>
+      </div>
+    </div>
+
+    <div class="terminal" id="terminal">
+      <!-- Fake mining logs will appear here -->
+    </div>
+
+    <div class="chart">
+      <canvas id="revenueChart"></canvas>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <p>总投资</p>
+        <h2>0$</h2>
+      </div>
+      <div class="stat">
+        <p>利润总额</p>
+        <h2>0$</h2>
+      </div>
+      <div class="stat">
+        <p>今日盈亏</p>
+        <h2>0$</h2>
+      </div>
+    </div>
+
+    <div class="details">
+      <p>TH/s: --</p>
+      <p>矿机型号：--</p>
+      <p>挖矿币种：--</p>
+      <div class="manager">
+        <img src="https://cdn-icons-png.flaticon.com/512/9706/9706583.png" alt="Manager">
+        <p>客户经理：--</p>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>全部的</th>
+          </tr>
+        </thead>
+        <tbody id="revenueTable">
+          <!-- Data will be populated dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Initialize Chart
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Revenue',
+          data: [],
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        }]
+      },
+      options: {
+        responsive: true,
+      }
+    });
+
+    // Fetch data from Google Sheets
+    async function fetchData() {
+      const response = await fetch('https://sheets.googleapis.com/v4/spreadsheets/1uu6XtBTrAiH1X1klA2UO3eYzjs4Gfyz56r91f1xLJlM/values/Sheet1?key=AIzaSyBvShpNn-4av3KWuQuUdmhl3S54rw2JFZY');
+      const data = await response.json();
+      const rows = data.values;
+
+      // Populate table
+      const table = document.getElementById('revenueTable');
+      rows.slice(1).forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td>`;
+        table.appendChild(tr);
+      });
+
+      // Populate chart
+      const dates = rows.slice(1).map(row => row[0]);
+      const pnl = rows.slice(1).map(row => parseFloat(row[1]));
+      chart.data.labels = dates;
+      chart.data.datasets[0].data = pnl;
+      chart.update();
+    }
+
+    fetchData();
+
+    // Fake mining logs
+    const terminal = document.getElementById('terminal');
+    function addLog() {
+      const messages = [
+      
+       // "连接以提供服务r...",
+       // "正在初始化矿机...",
+        //"哈希块# 1176...",
+      //  "挖矿成功！区块奖励：0.0000005 BTC",
+      //  "正在将奖励转移到钱包...",
+      //  "检测到网络延迟，正在重试...",
+      //  "挖矿效率：99.8%",
+      //  "更新区块链账本..."
+
+       // "错误",
+       // "未找到"
+   
+      ];
+      const log = document.createElement('div');
+      log.textContent = messages[Math.floor(Math.random() * messages.length)];
+      terminal.appendChild(log);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    setInterval(addLog, 1000);
+  </script>
+</body>
+</html>
